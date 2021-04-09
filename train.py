@@ -15,6 +15,7 @@ import argparse
 # from resnet import *
 from liu_models import *
 import wandb
+from utils import set_res_factor, get_res_factor
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -55,14 +56,14 @@ classes = ('plane', 'car', 'bird', 'cat', 'deer',
 
 # Model
 net_name = config.net_name
-print('=============> Building model..'+net_name)
+print('=============> Building model..' + net_name)
 
-print('config.lr',config.lr)
-print('config.weight_decay',config.weight_decay)
-print('config.widen_factor',config.widen_factor)
-print('config.block_layers',config.block_layers)
+print('config.lr', config.lr)
+print('config.weight_decay', config.weight_decay)
+print('config.widen_factor', config.widen_factor)
+print('config.block_layers', config.block_layers)
 # net = VGG('VGG19')
-net = CifarResNet20()
+net = CifarResNet32()
 # net = PreActResNet34()
 # net = GoogLeNet()
 # net = DenseNet121()
@@ -96,7 +97,7 @@ if args.resume:
     assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
 
     # change checkpoint here
-    checkpoint = torch.load('./checkpoint/'+net_name+'.pth')
+    checkpoint = torch.load('./checkpoint/' + net_name + '.pth')
     net.load_state_dict(checkpoint['net'])
     optimizer.load_state_dict(checkpoint['optimizer'])
     if args.lr == 0.1:
@@ -106,7 +107,8 @@ if args.resume:
         print('学习率', args.lr)
     best_acc = checkpoint['acc']
     start_epoch = checkpoint['epoch']
-
+    print('best_acc,', best_acc)
+    print('start_epoch,',checkpoint['epoch'])
     # for key, value in checkpoint['net'].items():
     #     print("key,", key)
     #     print("value,", value)
@@ -175,7 +177,7 @@ def test(epoch):
         }
         if not os.path.isdir('checkpoint'):
             os.mkdir('checkpoint')
-        torch.save(state, './checkpoint/'+net_name+'.pth')
+        torch.save(state, './checkpoint/' + net_name + '.pth')
         best_acc = acc
 
 
@@ -184,3 +186,6 @@ for epoch in range(start_epoch, start_epoch + 220):
     test(epoch)
     scheduler.step()
     print('lr:', scheduler.get_lr())
+    set_res_factor(epoch)
+    if epoch == 51 or epoch == 101:
+        print("-------factor,", get_res_factor())

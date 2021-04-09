@@ -10,7 +10,8 @@ Reference:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+from utils import get_res_factor
+import config
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -35,7 +36,7 @@ class BasicBlock(nn.Module):
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
-        out += self.shortcut(x)
+        out += get_res_factor() * self.shortcut(x)
         out = F.relu(out)
         return out
 
@@ -139,7 +140,7 @@ class ResNet(nn.Module):
 
 
 class CifarResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10, image_channels=3, batchnorm=True):
+    def __init__(self, block, num_blocks, num_classes=config.num_classes, image_channels=3, batchnorm=True):
         super(CifarResNet, self).__init__()
         self.in_planes = 16
         if batchnorm:
@@ -174,6 +175,10 @@ class CifarResNet(nn.Module):
 
 def CifarResNet20():
     return CifarResNet(BasicBlock, [3, 3, 3])
+
+
+def CifarResNet32():
+    return CifarResNet(BasicBlock, [5, 5, 5])
 
 
 def ResNet18():

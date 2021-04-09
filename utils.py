@@ -11,6 +11,23 @@ import math
 import torch.nn as nn
 import torch.nn.init as init
 
+res_factor = 1
+
+
+def get_res_factor():
+    return res_factor
+
+
+def set_res_factor(epoch):
+    global res_factor
+    res_factor=1
+    # if epoch < 50:
+    #     res_factor = 0.8
+    # elif epoch < 100:
+    #     res_factor = 0.9
+    # else:
+    #     res_factor = 1
+
 
 def get_mean_and_std(dataset):
     '''Compute the mean and std value of dataset.'''
@@ -20,11 +37,12 @@ def get_mean_and_std(dataset):
     print('==> Computing mean and std..')
     for inputs, targets in dataloader:
         for i in range(3):
-            mean[i] += inputs[:,i,:,:].mean()
-            std[i] += inputs[:,i,:,:].std()
+            mean[i] += inputs[:, i, :, :].mean()
+            std[i] += inputs[:, i, :, :].std()
     mean.div_(len(dataset))
     std.div_(len(dataset))
     return mean, std
+
 
 def init_params(net):
     '''Init layer parameters.'''
@@ -55,7 +73,7 @@ def progress_bar(current, total, msg=None):
     if current == 0:
         begin_time = time.time()  # Reset for new bar.
 
-    cur_len = int(TOTAL_BAR_LENGTH*current/total)
+    cur_len = int(TOTAL_BAR_LENGTH * current / total)
     rest_len = int(TOTAL_BAR_LENGTH - cur_len) - 1
 
     sys.stdout.write(' [')
@@ -79,30 +97,31 @@ def progress_bar(current, total, msg=None):
 
     msg = ''.join(L)
     sys.stdout.write(msg)
-    for i in range(term_width-int(TOTAL_BAR_LENGTH)-len(msg)-3):
+    for i in range(term_width - int(TOTAL_BAR_LENGTH) - len(msg) - 3):
         sys.stdout.write(' ')
 
     # Go back to the center of the bar.
-    for i in range(term_width-int(TOTAL_BAR_LENGTH/2)+2):
+    for i in range(term_width - int(TOTAL_BAR_LENGTH / 2) + 2):
         sys.stdout.write('\b')
-    sys.stdout.write(' %d/%d ' % (current+1, total))
+    sys.stdout.write(' %d/%d ' % (current + 1, total))
 
-    if current < total-1:
+    if current < total - 1:
         sys.stdout.write('\r')
     else:
         sys.stdout.write('\n')
     sys.stdout.flush()
 
+
 def format_time(seconds):
-    days = int(seconds / 3600/24)
-    seconds = seconds - days*3600*24
+    days = int(seconds / 3600 / 24)
+    seconds = seconds - days * 3600 * 24
     hours = int(seconds / 3600)
-    seconds = seconds - hours*3600
+    seconds = seconds - hours * 3600
     minutes = int(seconds / 60)
-    seconds = seconds - minutes*60
+    seconds = seconds - minutes * 60
     secondsf = int(seconds)
     seconds = seconds - secondsf
-    millis = int(seconds*1000)
+    millis = int(seconds * 1000)
 
     f = ''
     i = 1

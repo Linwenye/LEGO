@@ -11,10 +11,7 @@ import torchvision.transforms as transforms
 import os
 import argparse
 
-# from utils import progress_bar
-# from resnet import *
 from liu_models import *
-import wandb
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
 parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
@@ -29,7 +26,7 @@ start_epoch = 0  # start from epoch 0 or last checkpoint epoch
 
 # Model
 print('==> Building model..')
-net = ResNet101_cifar100()
+net = CifarResNet20()
 net = net.to(device)
 
 if device == 'cuda':
@@ -41,16 +38,14 @@ optimizer = optim.SGD(net.parameters(), lr=args.lr,
                       momentum=0.9, weight_decay=5e-4)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
-wandb.init(project="lego")
-wandb.watch(net, log="all")
-
 # Load checkpoint.
 print('==> Resuming from checkpoint..')
 assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
 
 # change checkpoint here
-checkpoint = torch.load('./checkpoint/cifar100_res101.pth')
+checkpoint = torch.load('./checkpoint/cifarResnet20.pth')
 net.load_state_dict(checkpoint['net'])
+
 optimizer.load_state_dict(checkpoint['optimizer'])
 if args.lr == 0.1:
     scheduler.load_state_dict(checkpoint['scheduler'])
