@@ -13,20 +13,18 @@ import torch.nn.init as init
 
 res_factor = 1
 
-
 def get_res_factor():
     return res_factor
 
-
 def set_res_factor(epoch):
     global res_factor
-    res_factor=1
-    # if epoch < 50:
-    #     res_factor = 0.8
-    # elif epoch < 100:
-    #     res_factor = 0.9
-    # else:
-    #     res_factor = 1
+    # res_factor=1
+    if epoch < 50:
+        res_factor = 0.8
+    elif epoch < 100:
+        res_factor = 0.9
+    else:
+        res_factor = 1
 
 
 def get_mean_and_std(dataset):
@@ -60,12 +58,12 @@ def init_params(net):
                 init.constant(m.bias, 0)
 
 
-_, term_width = os.popen('stty size', 'r').read().split()
-term_width = int(term_width)
-
-TOTAL_BAR_LENGTH = 65.
-last_time = time.time()
-begin_time = last_time
+# _, term_width = os.popen('stty size', 'r').read().split()
+# term_width = int(term_width)
+#
+# TOTAL_BAR_LENGTH = 65.
+# last_time = time.time()
+# begin_time = last_time
 
 
 def progress_bar(current, total, msg=None):

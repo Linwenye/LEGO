@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from utils import get_res_factor
-import config
+
 
 class BasicBlock(nn.Module):
     expansion = 1
@@ -100,7 +100,7 @@ class Bottleneck(nn.Module):
         out = F.relu(self.bn1(self.conv1(x)))
         out = F.relu(self.bn2(self.conv2(out)))
         out = self.bn3(self.conv3(out))
-        out += self.shortcut(x)
+        out += get_res_factor() * self.shortcut(x)
         out = F.relu(out)
         return out
 
@@ -140,7 +140,7 @@ class ResNet(nn.Module):
 
 
 class CifarResNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=config.num_classes, image_channels=3, batchnorm=True):
+    def __init__(self, block, num_blocks, num_classes=10, image_channels=3, batchnorm=True):
         super(CifarResNet, self).__init__()
         self.in_planes = 16
         if batchnorm:
@@ -173,12 +173,20 @@ class CifarResNet(nn.Module):
         return out
 
 
-def CifarResNet20():
-    return CifarResNet(BasicBlock, [3, 3, 3])
+def CifarResNet20(num_classes):
+    return CifarResNet(BasicBlock, [3, 3, 3], num_classes)
 
 
-def CifarResNet32():
-    return CifarResNet(BasicBlock, [5, 5, 5])
+def CifarResNet32(num_classes):
+    return CifarResNet(BasicBlock, [5, 5, 5], num_classes)
+
+
+def CifarResNet44(num_classes):
+    return CifarResNet(BasicBlock, [7, 7, 7], num_classes)
+
+
+def CifarResNet56(num_classes):
+    return CifarResNet(Bottleneck, [9, 9, 9], num_classes)
 
 
 def ResNet18():

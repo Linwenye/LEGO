@@ -10,7 +10,6 @@ Reference:
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import config
 
 
 class BasicBlock(nn.Module):
@@ -131,7 +130,7 @@ class ReuseBlock3(nn.Module):
 
 
 class ReuseNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=config.num_classes, widen_factor=config.widen_factor):
+    def __init__(self, block, num_blocks, num_classes=10, widen_factor=1):
         super(ReuseNet, self).__init__()
         self.in_planes = 16 * widen_factor
 
@@ -172,7 +171,7 @@ class ReuseNet(nn.Module):
 
 
 class CifarReuseNet(nn.Module):
-    def __init__(self, block, num_blocks, num_classes=10, widen_factor=config.widen_factor):
+    def __init__(self, block, num_blocks, num_classes=10, widen_factor=1):
         super(CifarReuseNet, self).__init__()
         self.in_planes = 16 * widen_factor
 
@@ -190,12 +189,7 @@ class CifarReuseNet(nn.Module):
         self.in_planes = planes * block.expansion
         layers.append(block(self.in_planes, planes, 1))
 
-        if config.block_layers == 2:
-            reuse = BasicBlock(self.in_planes, planes, 1)
-        elif config.block_layers == 3:
-            reuse = ReuseBlock3(self.in_planes, planes, 1)
-        else:
-            reuse = None
+        reuse = BasicBlock(self.in_planes, planes, 1)
         for _ in strides:
             layers.append(reuse)
             self.in_planes = planes * block.expansion
@@ -220,8 +214,8 @@ def CifarReuseNet26():
     return CifarReuseNet(BasicBlock, [4, 4, 4])
 
 
-def ReuseNet26():
-    return ReuseNet(BasicBlock, [3, 3, 3, 3], num_classes=config.num_classes)
+def ReuseNet26(num_classes):
+    return ReuseNet(BasicBlock, [3, 3, 3, 3], num_classes)
 
 
 def ReuseNet34():
