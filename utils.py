@@ -13,16 +13,18 @@ import torch.nn.init as init
 
 res_factor = 1
 
+
 def get_res_factor():
     return res_factor
 
+
 def set_res_factor(epoch):
     global res_factor
-    # res_factor=1
-    if epoch < 50:
-        res_factor = 0.8
-    elif epoch < 100:
-        res_factor = 0.9
+    if epoch<10:
+        res_factor = 0.7
+    elif epoch<100:
+    # if epoch < 100:
+        res_factor = 0.85
     else:
         res_factor = 1
 

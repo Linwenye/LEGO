@@ -18,7 +18,7 @@ import config
 from utils import set_res_factor, get_res_factor
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
-parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
+parser.add_argument('--lr', default=config.lr, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true',
                     help='resume from checkpoint')
 args = parser.parse_args()
@@ -81,11 +81,11 @@ if device == 'cuda':
     cudnn.benchmark = True
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.SGD(net.parameters(), lr=config.lr, momentum=0.9, weight_decay=config.weight_decay)
+optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9, weight_decay=config.weight_decay)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=200)
 
-wandb.init(project="lego")
-wandb.watch(net, log="all")
+# wandb.init(project="lego")
+# wandb.watch(net, log="all")
 
 if args.resume:
     # Load checkpoint.
@@ -133,7 +133,7 @@ def train(epoch):
         # progress_bar(batch_idx, len(trainloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
         #              % (train_loss / (batch_idx + 1), 100. * correct / total, correct, total))
 
-    wandb.log({'train_acc': 100. * correct / total, 'train_loss': train_loss})
+    # wandb.log({'train_acc': 100. * correct / total, 'train_loss': train_loss})
     print('train_acc', 100. * correct / total)
     print('train_loss', train_loss)
 
@@ -158,7 +158,7 @@ def test(epoch):
             # progress_bar(batch_idx, len(testloader), 'Loss: %.3f | Acc: %.3f%% (%d/%d)'
             #              % (test_loss / (batch_idx + 1), 100. * correct / total, correct, total))
 
-    wandb.log({'test_acc': 100. * correct / total, 'test_loss': test_loss})
+    # wandb.log({'test_acc': 100. * correct / total, 'test_loss': test_loss})
     print('test_acc', 100. * correct / total)
     print('test_loss', test_loss)
     # Save checkpoint.
@@ -178,6 +178,9 @@ def test(epoch):
         best_acc = acc
 
 
+if args.resume:
+    test(start_epoch)
+
 for epoch in range(start_epoch, start_epoch + config.train_epoch):
     if not config.constant_residual_scale:
         set_res_factor(epoch)
@@ -187,5 +190,4 @@ for epoch in range(start_epoch, start_epoch + config.train_epoch):
     scheduler.step()
     print('lr:', scheduler.get_last_lr())
 
-    if epoch == 51 or epoch == 101:
-        print("-------factor,", get_res_factor())
+    print("-------factor,", get_res_factor())
